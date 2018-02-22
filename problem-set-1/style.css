@@ -1,0 +1,29 @@
+html, body {
+  margin: 0;
+  border: 0;
+  height: 100%;
+}
+main {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+}
+
+canvas {
+  flex: 2;
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.output {
+  flex-grow: 1;
+  overflow: auto;
+}
+input {
+  height: 20px;
+}
