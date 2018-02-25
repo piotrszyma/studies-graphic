@@ -1,0 +1,52 @@
+pos 100 100;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate 60;
+
+move 20; rotate 60; move 20; rotate -120; move 20; rotate 60; move 20;
+
+rotate -120;
+
