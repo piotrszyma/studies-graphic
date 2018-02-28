@@ -118,7 +118,7 @@ const help = () => {
   return HELP
 }
 
-const koch = (length, level) => {
+const koch = (level, length) => {
   [length, level] = [length, level].map(validate)
   const generatedKoch = generateKoch(length, level)
   generatedKoch.map(e => {
@@ -291,6 +291,6 @@ status/0                    direction
 position/2     x-cord       direction
                y-cord       coords
 
-koch/2         length       level
-               level
+koch/2         level        level
+               length
 `
