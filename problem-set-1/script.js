@@ -4,10 +4,11 @@
 
 let $state = {}
 let $dom = {}
-
-const RADIANS_MULTIPLIER = Math.PI / 180;
-
 let COMMANDS_COUNTER = 0;
+const RADIANS_MULTIPLIER = Math.PI / 180;
+const VIRTUAL_WIDTH = 10000;
+
+let SCALE_RATIO;
 let COMMANDS;
 let HELP;
 
@@ -25,10 +26,22 @@ const validate = n => {
 const rotatedArrow = d => `<span class="rotation" style="transform: rotate(-${d}deg)">↓</span>`
 
 const parseCoords = (x, y) => {
+  debugger;
   const xp = x;
   const yp = y + 2 * ($state.pane.yCenter - y);
   return [xp, yp]
 };
+
+const printCoords = (x, y) => {
+  const mul = (x) => x * (1/SCALE_RATIO);
+  const [_x, _y] = parseCoords(x, y)
+                    .map(mul);
+  return `(${_x}, ${_y})`;
+};
+
+const printDistance = (d) => {
+  return d * (1/SCALE_RATIO);
+}
 
 // L   120   L   120   L
 // L => L/3   -60    L/3     120    L/3    -60    L#
@@ -73,24 +86,27 @@ const generateKoch = (length, level) => {
 }
 
 // Commands
-
+//
+// 1 / 10000 = x / HEIGHT
+// x = HEIGHT / 10000
 const move = (distance=0) => {
+  const parsedDistance = distance * SCALE_RATIO;
   const x0 = $state.turtle.position.x;
   const y0 = $state.turtle.position.y;
   const direction = $state.turtle.direction * RADIANS_MULTIPLIER;
-  const x = x0 + distance * Math.sin(direction);
-  const y = y0 + distance * Math.cos(direction);
+  const x = x0 + parsedDistance * Math.sin(direction);
+  const y = y0 + parsedDistance * Math.cos(direction);
   $state.turtle.position.x = x;
+  
   $state.turtle.position.y = y;
   $state.context.lineTo(x, y);
   $state.context.stroke();
-
-  const [_x0, _y0] = parseCoords(x0, y0);
-  const [_x, _y] = parseCoords(x, y);
-
-  return `(${_(_x0)}, ${_(_y0)}) ⟹  ${$state.turtle.direction}° ${rotatedArrow($state.turtle.direction)} | ${distance} units  ⟹ (${_(_x)}, ${_(_y)})`
+  return `${printCoords(x0, y0)} ⟹  ${$state.turtle.direction}° ${rotatedArrow($state.turtle.direction)} | ${printDistance(parsedDistance)} units  ⟹ ${printCoords(x, y)}`
 }
 
+  
+  
+  
 const rotate = (direction=360) => {
   direction = validate(direction);pos 
   $state.turtle.direction = ($state.turtle.direction + direction) % 360;
@@ -98,15 +114,15 @@ const rotate = (direction=360) => {
 }
 
 const status = () => {
-  const [_x, _y] = parseCoords($state.turtle.position.x, $state.turtle.position.y);
-  return `${$state.turtle.direction}° ${rotatedArrow($state.turtle.direction)} / (${_(_x)}, ${_(_y)})`
+  return `${$state.turtle.direction}° ${rotatedArrow($state.turtle.direction)} /\
+  ${printCoords($state.turtle.position.x, $state.turtle.position.y)}`
 }
 
 const pos = (x=0, y=0) => { 
-  let [validX, validY] = [x, y].map(validate);
-
+  let [validX, validY] = [x, y]
+          .map(validate)
+          .map((c) => c * SCALE_RATIO);
   [x, y] = parseCoords(validX, validY);
-
   $state.turtle.position.x = x;
   $state.turtle.position.y = y;
   $state.context.moveTo(x, y);
@@ -179,9 +195,7 @@ $(document).ready(() => {
     direction: 0,
     position: {
       x: 0,
-      xMax: 10000,
       y: 0,
-      yMax: 10000
     }
   }
 
@@ -213,6 +227,8 @@ $(document).ready(() => {
     const clientHeight = $dom.canvas.clientHeight;
     const clientWidth = $dom.canvas.clientWidth;
   
+    SCALE_RATIO = clientWidth / VIRTUAL_WIDTH;
+  
     $state.context.canvas.width = clientWidth;
     $state.context.canvas.height = clientHeight;
     $state.context.strokeStyle = 'red';
@@ -235,8 +251,7 @@ $(document).ready(() => {
     print("Initial values:")   
     print("Canvas height: " + $state.context.canvas.height);
     print("Canvas width: " + $state.context.canvas.width);
-    const [_x, _y] = parseCoords($state.turtle.position.x, $state.turtle.position.y);
-    print(`Position: (${_x}, ${_y})`);
+    print(`Position: ${printCoords($state.turtle.position.x, $state.turtle.position.y)}`);
     print("Direction: " + $state.turtle.direction);
 
   }, 100);
