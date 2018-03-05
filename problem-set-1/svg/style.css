@@ -1,4 +1,4 @@
-@import url('file:Inconsolata-Regular.ttf');
+@import url('file:../common/Inconsolata-Regular.ttf');
 
 html, body {
   margin: 0;
@@ -14,7 +14,7 @@ main {
   flex-direction: row;
 }
 
-canvas {
+svg {
   flex: 2;
   background-color: black;
 }

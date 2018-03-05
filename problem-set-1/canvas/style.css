@@ -1,0 +1,73 @@
+@import url('file:../common/Inconsolata-Regular.ttf');
+
+html, body {
+  margin: 0;
+  border: 0;
+  height: 100%;
+  font-size: 100%;
+  font-family: 'Inconsolata', monospace;
+}
+main {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+}
+
+canvas {
+  flex: 2;
+  background-color: black;
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: black;
+  border-left: 2px solid rgb(0, 233, 0);
+  padding-left: 4px;
+  overflow: hidden;
+}
+
+.status {
+  color: rgb(0, 233, 0);
+}
+
+.output {
+  flex-grow: 1;
+  overflow: hidden;
+  background-color: black;
+  color: rgb(0, 233, 0);
+}
+
+.output p {
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+input {
+  height: 20px;
+  outline: none;
+  -webkit-appearance: none;
+  border: 0;
+  color: rgb(0, 233, 0);
+  background-color: black;
+  font-size: 100%;
+  font-family: 'Inconsolata', monospace;
+  width: 100%;
+}
+.wrapper {
+  display: flex;
+}
+
+.wrapper span {
+  color: rgb(0, 233, 0);
+  line-height: 23px;
+  margin-right: 3px;
+}
+
+.rotation {
+  transform-origin: center;
+  display: inline-block;
+}

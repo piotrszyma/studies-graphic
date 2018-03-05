@@ -26,7 +26,6 @@ const validate = n => {
 const rotatedArrow = d => `<span class="rotation" style="transform: rotate(-${d}deg)">↓</span>`
 
 const parseCoords = (x, y) => {
-  debugger;
   const xp = x;
   const yp = y + 2 * ($state.pane.yCenter - y);
   return [xp, yp]
@@ -35,7 +34,8 @@ const parseCoords = (x, y) => {
 const printCoords = (x, y) => {
   const mul = (x) => x * (1/SCALE_RATIO);
   const [_x, _y] = parseCoords(x, y)
-                    .map(mul);
+                    .map(mul)
+                    .map(Math.round);
   return `(${_x}, ${_y})`;
 };
 
@@ -86,9 +86,7 @@ const generateKoch = (length, level) => {
 }
 
 // Commands
-//
-// 1 / 10000 = x / HEIGHT
-// x = HEIGHT / 10000
+
 const move = (distance=0) => {
   const parsedDistance = distance * SCALE_RATIO;
   const x0 = $state.turtle.position.x;
@@ -97,16 +95,29 @@ const move = (distance=0) => {
   const x = x0 + parsedDistance * Math.sin(direction);
   const y = y0 + parsedDistance * Math.cos(direction);
   $state.turtle.position.x = x;
-  
   $state.turtle.position.y = y;
-  $state.context.lineTo(x, y);
-  $state.context.stroke();
+
+  $dom.svg.innerHTML += `<line x1=${x0} y1=${y0} x2=${x} y2=${y} style="stroke:rgb(255,0,0);stroke-width:2" />`
+
   return `${printCoords(x0, y0)} ⟹  ${$state.turtle.direction}° ${rotatedArrow($state.turtle.direction)} | ${printDistance(parsedDistance)} units  ⟹ ${printCoords(x, y)}`
 }
 
-  
+
+const moveString = (distance=0) => {
+  const parsedDistance = distance * SCALE_RATIO;
+  const x0 = $state.turtle.position.x;
+  const y0 = $state.turtle.position.y;
+  const direction = $state.turtle.direction * RADIANS_MULTIPLIER;
+  const x = x0 + parsedDistance * Math.sin(direction);
+  const y = y0 + parsedDistance * Math.cos(direction);
+  $state.turtle.position.x = x;
+  $state.turtle.position.y = y;
+
+  return `<line x1=${x0} y1=${y0} x2=${x} y2=${y} style="stroke:rgb(255,0,0);stroke-width:2" />`
+}
+
 const rotate = (direction=360) => {
-  direction = validate(direction);pos 
+  direction = validate(direction);
   $state.turtle.direction = ($state.turtle.direction + direction) % 360;
   return COMMANDS['status']();
 }
@@ -123,8 +134,6 @@ const pos = (x=0, y=0) => {
   [x, y] = parseCoords(validX, validY);
   $state.turtle.position.x = x;
   $state.turtle.position.y = y;
-  $state.context.moveTo(x, y);
-
   return COMMANDS['status']();
 }
 
@@ -134,20 +143,31 @@ const help = () => {
 
 const koch = (level, length) => {
   [length, level] = [length, level].map(validate)
-  const generatedKoch = generateKoch(length, level)
-  generatedKoch.map(e => {
+  const scaledLength = length * (SCALE_RATIO);
+  const generatedKoch = generateKoch(scaledLength, level)
+  const kochDOM = generatedKoch.map(e => {
     switch(typeof e) {
       case 'number':
-        move(e);
-        break;
+        return moveString(e);
       case 'string':
         rotate(e);
-        break;
+        return "";
       default:
-        throw "Unexpected command from generated Koch"
+        return "";
     }
   })
+
+  $dom.svg.innerHTML += kochDOM.join("");
+  // $dom.svg.innerHTML += `<line x1=${x0} y1=${y0} x2=${x} y2=${y} style="stroke:rgb(255,0,0);stroke-width:2" />`
+  
   return `Koch: level: ${level} length: ${length}`
+}
+
+const clear = () => {
+  // $state.context.clearRect(0, 0, canvas.width, canvas.height);
+  // $state.context.beginPath();
+  $dom.svg.innerHTML = "";
+  return 'Cleared'
 }
 
 // Command line
@@ -186,7 +206,7 @@ const printMany = (lines) => {
 $(document).ready(() => {
   $dom.prompt = $('input');
   $dom.console = $('.output');
-  $dom.canvas = $('canvas')[0];
+  $dom.svg = $('svg')[0];
   $dom.status = $('.status')[0];
   
   $state.turtle = {
@@ -209,7 +229,6 @@ $(document).ready(() => {
       }
       $dom.prompt.val("");
       $dom.console[0].scrollTop = $dom.console[0].scrollHeight;
-      $dom.status.text = "abc"
     }
   });
   const promptFocus = () => $dom.prompt.focus();
@@ -217,24 +236,11 @@ $(document).ready(() => {
   $dom.prompt.on('mouseover', promptFocus);
 
   setTimeout(() => {
-    $state.context = $dom.canvas.getContext("2d");
-    $state.context.lineJoin = 'round';
-    $state.context.lineWidth = 'round';
-    $state.context.beginPath();
   
-    const clientHeight = $dom.canvas.clientHeight;
-    const clientWidth = $dom.canvas.clientWidth;
+    const clientHeight = $dom.svg.clientHeight;
+    const clientWidth = $dom.svg.clientWidth;
   
     SCALE_RATIO = clientWidth / VIRTUAL_WIDTH;
-  
-    $state.context.canvas.width = clientWidth;
-    $state.context.canvas.height = clientHeight;
-    $state.context.strokeStyle = 'red';
-    $state.context.fillStyle = 'red';
-    $state.context.moveTo(
-      $state.turtle.position.x,
-      $state.turtle.position.y
-    );
 
     $state.pane = {
       x: clientWidth,
@@ -243,14 +249,11 @@ $(document).ready(() => {
       yCenter: Math.floor(clientHeight / 2)
     }
 
-    pos(0, 0);
-    rotate(135);
-
-    print("Initial values:")   
-    print("Canvas height: " + $state.context.canvas.height);
-    print("Canvas width: " + $state.context.canvas.width);
-    print(`Position: ${printCoords($state.turtle.position.x, $state.turtle.position.y)}`);
-    print("Direction: " + $state.turtle.direction);
+    // print("Initial values:")   
+    // print("Canvas height: " + $state.context.canvas.height);
+    // print("Canvas width: " + $state.context.canvas.width);
+    // print(`Position: ${printCoords($state.turtle.position.x, $state.turtle.position.y)}`);
+    // print("Direction: " + $state.turtle.direction);
 
   }, 100);
 })
@@ -259,6 +262,9 @@ $(document).ready(() => {
 
 
 COMMANDS = {
+  'c': clear,
+  'cl': clear,
+  'clear': clear,
 
   'm': move,
   'mv': move,
@@ -289,6 +295,8 @@ HELP = `
         Simple canvas writer
 
 COMMAND        ARGS         RETURNS
+
+clear/0                     
 
 move/1         distance     old coords
                             direction
