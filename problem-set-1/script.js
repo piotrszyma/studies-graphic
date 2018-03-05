@@ -105,8 +105,6 @@ const move = (distance=0) => {
 }
 
   
-  
-  
 const rotate = (direction=360) => {
   direction = validate(direction);pos 
   $state.turtle.direction = ($state.turtle.direction + direction) % 360;
