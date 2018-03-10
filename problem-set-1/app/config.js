@@ -1,0 +1,7 @@
+define(() => ({
+  RADIANS_MULTIPLIER: Math.PI / 180,
+  VIRTUAL_WIDTH: 10000,
+  INIT_X: 0,
+  INIT_Y: 0,
+  INIT_DIRECTION: 0,
+}));
