@@ -143,7 +143,6 @@ const help = () => {
 
 const koch = (level, length) => {
   [length, level] = [length, level].map(validate)
-  debugger;
   const scaledLength = length * (1 / SCALE_RATIO);
   const generatedKoch = generateKoch(scaledLength, level)
   const kochDOM = generatedKoch.map(e => {
@@ -205,6 +204,7 @@ const printMany = (lines) => {
 
 // Hooks
 $(document).ready(() => {
+  return;
   $dom.prompt = $('input');
   $dom.console = $('.output');
   $dom.svg = $('svg')[0];

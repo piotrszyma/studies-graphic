@@ -1,16 +1,26 @@
-define(["../config"], ( config ) => ({
-  _direction: config.INIT_DIRECTION,
-  _x: config.INIT_X,
-  _y: config.INIT_Y,
-  rotate: ({ degree }) => {
-    this._direction = this._direction + degree % 360;
-  },
-  setPosition: ({ x, y }) => {
-    this._x = x;
-    this._y = y;
-  },
-  getPosition: () => ({
-    x: this._x, 
-    y: this._y
-  })
-}));
+define(["../config"], (config) => {
+  const turtleState = {
+    x: config.INIT_X,
+    y: config.INIT_Y,
+    direction: config.INIT_DIRECTION,
+    rotate: ({
+      degree
+    }) => {
+      turtleState.direction = (turtleState.direction + degree) % 360;
+      console.log(`Rotation: New direction: ${turtleState.direction}`);
+    },
+    setPosition: ({
+      x,
+      y
+    }) => {
+      turtleState.x = x;
+      turtleState.y = y;
+      console.log(`Position change: x: ${turtleState.x} y: ${turtleState.y}`);
+    },
+    getPosition: () => ({
+      x: turtleState.x,
+      y: turtleState.y
+    })
+  };
+  return turtleState;
+});

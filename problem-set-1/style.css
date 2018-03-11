@@ -4,6 +4,7 @@
 }
 
 html, body {
+  overflow: hidden;
   margin: 0;
   border: 0;
   height: 100%;
@@ -73,4 +74,16 @@ input {
 .rotation {
   transform-origin: center;
   display: inline-block;
+}
+
+#pointer {
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(0, 233, 0);
+  color: black;
+  border-radius: 50%;
 }

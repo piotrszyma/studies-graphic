@@ -20,9 +20,7 @@
         "constructor-super": "warn",
         "valid-typeof": "warn",
         "semi": "warn",
-        "arrow-parens": "warn",
-        "space-before-function-paren": "warn",
-        "space-in-brackets": "warn"
+        "comma-dangle": ["always", "warn"]
     },
     "globals": {
         "define": true
