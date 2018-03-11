@@ -1,4 +1,8 @@
-define(['../config', './panes/svg', './wrapper', './turtle', './utils'], (config, svg, { print, pointer }, turtle, utils) => {
+define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'], (config, svg, {
+  print,
+  pointer,
+  pane
+}, turtle, utils, kochGenerator) => {
   const virtualCordsToReal = ({
     x,
     y
@@ -39,10 +43,21 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils'], (config
     pointer.adjust();
   };
   const rotate = (degree = 0, silent) => {
+
+    if (degree < 0) {
+      while (degree < 0) {
+        degree += 360;
+      }
+    } else if (degree > 360) {
+      while (degree > 360) {
+        degree -= 360;
+      }
+    }
+
     svg.rotate({
-      degree: degree % 360
+      degree
     });
-    if (!silent) print(`Rotated ${degree % 360} ${utils.rotatedArrow(turtle.direction)}`);
+    if (!silent) print(`Rotated ${degree} ${utils.rotatedArrow(turtle.direction)}`);
     pointer.adjust();
   };
   const status = (silent) => {
@@ -72,7 +87,23 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils'], (config
     pointer.adjust();
   };
   const help = () => {};
-  const koch = (level = 1, length = 1) => {};
+  const koch = (level = 1, length = 1) => {
+    const generatedKoch = kochGenerator.generate({
+      level,
+      length
+    });
+
+    const kochDOM = generatedKoch.reduce( (prev, current) => {
+      if (typeof current === 'number' ) {
+        return [...prev,  svg.fakeMove({distance: current})]
+      }
+      rotate(Number(current), true);
+      return prev;
+    }, []);
+    requestAnimationFrame(() => {
+      pane.innerHTML += kochDOM;
+    });
+  };
 
   const commands = {
     'c': clear,

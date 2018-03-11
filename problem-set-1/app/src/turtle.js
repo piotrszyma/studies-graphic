@@ -7,7 +7,7 @@ define(["../config"], (config) => {
       degree
     }) => {
       turtleState.direction = (turtleState.direction + degree) % 360;
-      console.log(`Rotation: New direction: ${turtleState.direction}`);
+      // console.log(`Rotation: New direction: ${turtleState.direction}`);
     },
     setPosition: ({
       x,
@@ -15,7 +15,7 @@ define(["../config"], (config) => {
     }) => {
       turtleState.x = x;
       turtleState.y = y;
-      console.log(`Position change: x: ${turtleState.x} y: ${turtleState.y}`);
+      // console.log(`Position changed: x: ${turtleState.x} y: ${turtleState.y}`);
     },
     getPosition: () => ({
       x: turtleState.x,

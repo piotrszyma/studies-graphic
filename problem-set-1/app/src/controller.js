@@ -9,13 +9,15 @@ define(
           try {
             commands.forEach((c) => interpreter.interpret({ command: c }));
           } catch (error) {
-            print(error);
+            domWrapper.print("Invalid command");
+            console.error(error);
           }
         } else {
           try {
             interpreter.interpret({ command: command });
           } catch (error) {
-            print(error);
+            domWrapper.print("Invalid command");
+            console.error(error);
           }
         }
         domWrapper.input.value = "";

@@ -1,4 +1,4 @@
-define(['../turtle', '../wrapper', '../../config'], (turtle, domWrapper, config) => {
+define(['../turtle', '../wrapper', '../../config', '../koch'], (turtle, domWrapper, config, kochGenerator) => {
   const addLine = ({
     startX,
     startY,
@@ -34,6 +34,26 @@ define(['../turtle', '../wrapper', '../../config'], (turtle, domWrapper, config)
     });
   };
 
+  const fakeMove = ({
+    distance
+  }) => {
+    const {
+      x: currentX,
+      y: currentY
+    } = turtle.getPosition();
+
+    const direction = turtle.direction * config.RADIANS_MULTIPLIER;
+    const newX = currentX + distance * Math.sin(direction);
+    const newY = currentY + distance * Math.cos(direction);
+
+    turtle.setPosition({
+      x: newX,
+      y: newY
+    });
+
+    return  `<line x1=${currentX} y1=${currentY} x2=${newX} y2=${newY} style="stroke:rgb(255,0,0);stroke-width:2" />`;
+  };
+
   const rotate = ({
     degree
   }) => {
@@ -56,6 +76,7 @@ define(['../turtle', '../wrapper', '../../config'], (turtle, domWrapper, config)
   return {
     move,
     rotate,
-    position
+    position,
+    fakeMove
   };
 });
