@@ -1,28 +1,32 @@
 define(
-  ['./wrapper', './interpreter'],
-  (domWrapper, interpreter) => {
+  ['./wrapper', './interpreter', './history.js'],
+  (domWrapper, interpreter, history) => {
     domWrapper.input.addEventListener('keydown', (event) => {
       if (event.which === 13 && event.target.value !== "") {
         const command = event.target.value;
+        history.add(command);
         if (command.indexOf(";") !== -1) {
           const commands = command.trim().split(/\s*;\s*/).filter((c) => c !== '');
           try {
             commands.forEach((c) => interpreter.interpret({ command: c }));
           } catch (error) {
-            domWrapper.print("Invalid command");
-            console.error(error);
+            domWrapper.print(error);
           }
         } else {
           try {
             interpreter.interpret({ command: command });
           } catch (error) {
-            domWrapper.print("Invalid command");
-            console.error(error);
+            domWrapper.print(error);
           }
         }
         domWrapper.input.value = "";
         domWrapper.output.scrollTop = domWrapper.output.scrollHeight;
+      } else if (event.which === 38) {
+        domWrapper.input.value = history.older();
+      } else if (event.which === 40) {
+        domWrapper.input.value = history.younger();
       }
+      event.stopPropagation();
     });
 
     document.addEventListener('keydown', (event) => {

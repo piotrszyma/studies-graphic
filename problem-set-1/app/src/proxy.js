@@ -1,4 +1,6 @@
-define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'], (config, svg, {
+define(['../config', './panes/svg', './panes/canvas', './wrapper', './turtle', './utils', './koch'], (config, 
+  svg,
+  canvas, {
   print,
   pointer,
   pane
@@ -14,7 +16,6 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
       y: (realY + 2 * ((config.Y_CENTER) - realY)),
     };
   };
-
   const realCoordsToVirtual = ({
     x,
     y
@@ -31,12 +32,44 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
     return distance * config.SCALE_RATIO;
   };
 
-  const clear = () => {};
+  const currentPane = svg;
+
+  const switchPane = () => {
+    switch (config.PANE) {
+      case 'SVG':
+        window.name = 'CANVAS';
+        window.location.reload();
+        break;
+      case 'CANVAS':
+        window.name = 'SVG';
+        window.location.reload();
+        break;
+      default:
+        console.error("Unknown pane type");
+    }
+  }
+
+  const getPane = () => {
+    switch (config.PANE) {
+      case 'SVG':
+        return svg;
+        break;
+      case 'CANVAS':
+        return canvas;
+        break;
+      default:
+        console.error("Unknown pane type");
+    }
+  }
+
+  const clear = () => {
+    getPane().clear();
+  };
   const move = (distance = 0, silent) => {
     const parsedDistance = virtualDistanceToReal({
       distance
     });
-    svg.move({
+    getPane().move({
       distance: parsedDistance
     });
     if (!silent) print(`Moved ${distance}`);
@@ -54,7 +87,7 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
       }
     }
 
-    svg.rotate({
+    getPane().rotate({
       degree
     });
     if (!silent) print(`Rotated ${degree} ${utils.rotatedArrow(turtle.direction)}`);
@@ -79,7 +112,7 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
       x,
       y
     });
-    svg.position({
+    getPane().position({
       x: parsedX,
       y: parsedY
     });
@@ -95,7 +128,7 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
 
     const kochDOM = generatedKoch.reduce( (prev, current) => {
       if (typeof current === 'number' ) {
-        return [...prev,  svg.fakeMove({distance: current})]
+        return [...prev,  getPane().fakeMove({distance: current})]
       }
       rotate(Number(current), true);
       return prev;
@@ -122,6 +155,8 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
     'state': status,
     'status': status,
 
+    'switch': switchPane,
+
     'p': pos,
     'pos': pos,
     'position': pos,
@@ -138,6 +173,7 @@ define(['../config', './panes/svg', './wrapper', './turtle', './utils', './koch'
     args,
     silent
   }) => {
+    if (!Object.keys(commands).includes(commandName)) throw `Unknown command "${commandName}"`;
     commands[commandName](...args, silent);
   };
 

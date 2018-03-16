@@ -18,7 +18,7 @@ main {
   flex-direction: row;
 }
 
-svg {
+#pane {
   flex: 2;
   background-color: black;
 }

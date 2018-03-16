@@ -1,4 +1,21 @@
 define(['../config', './turtle'], (config, turtle) => {
+
+  const main = document.getElementById('main')
+
+  switch (config.PANE) {
+    case 'SVG':
+      main.innerHTML = `
+      <svg id="pane"></svg>
+      ` + main.innerHTML;
+      break;
+    case 'CANVAS':
+    default:
+      main.innerHTML = `
+      <canvas id="pane"></canvas>
+      ` + main.innerHTML;
+  }
+
+
   const [status, input, pane, output, pointer] = ['status', 'input', 'pane', 'output', 'pointer']
   .map((event) => document.getElementById(event));
 
@@ -8,7 +25,8 @@ define(['../config', './turtle'], (config, turtle) => {
       status.innerHTML =
         `X: ${~~(turtle.x * (1 / config.SCALE_RATIO))} \
          Y: ${~~((turtle.y + 2 * (config.Y_CENTER - turtle.y)) * (1 / config.SCALE_RATIO))}\
-         (<span class="rotation" style="transform: rotate(${(-1 * turtle.direction) % 360}deg)">↓</span>)`
+         (<span class="rotation" style="transform: rotate(${(-1 * turtle.direction) % 360}deg)">↓</span>) \
+         Pane: ${config.PANE}`
     });
   }
 

@@ -1,4 +1,6 @@
 define(['../turtle', '../wrapper', '../../config', '../koch'], (turtle, domWrapper, config, kochGenerator) => {
+  if (config.PANE != 'SVG') return;
+  
   const addLine = ({
     startX,
     startY,
@@ -50,7 +52,6 @@ define(['../turtle', '../wrapper', '../../config', '../koch'], (turtle, domWrapp
       x: newX,
       y: newY
     });
-
     return  `<line x1=${currentX} y1=${currentY} x2=${newX} y2=${newY} style="stroke:rgb(255,0,0);stroke-width:2" />`;
   };
 
@@ -73,10 +74,17 @@ define(['../turtle', '../wrapper', '../../config', '../koch'], (turtle, domWrapp
     });
   };
 
+  const clear = () => {
+    requestAnimationFrame(() => {
+      domWrapper.pane.innerHTML = ''
+    });
+  };
+
   return {
     move,
     rotate,
     position,
-    fakeMove
+    fakeMove,
+    clear
   };
 });

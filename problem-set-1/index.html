@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,20 +9,21 @@
   <script data-main="app" src="app/require.js"></script>
   <link type="text/css" rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <main>
-      <svg id="pane">
-        <div id="pointer">↗</div>
-      </svg>
-      <aside>
-        <div id="status" class="status">Status</div>
-        <div id="output" class="output">
-        </div>
-        <div class="wrapper">
-          <span>➜</span>
-          <input id="input" type="text">
-        </div>
-      </aside>
+  <main id="main">
+    <!-- Pane will be injected here -->
+    <div id="pointer">↗</div>
+    <aside>
+      <div id="status" class="status">Status</div>
+      <div id="output" class="output">
+      </div>
+      <div class="wrapper">
+        <span>➜</span>
+        <input id="input" type="text">
+      </div>
+    </aside>
   </main>
 </body>
+
 </html>
