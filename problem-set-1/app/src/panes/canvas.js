@@ -21,6 +21,7 @@ define(['../turtle', '../wrapper', '../../config'], (turtle, domWrapper, config)
       x: currentX,
       y: currentY
     } = turtle.getPosition();
+
     const direction = turtle.direction * config.RADIANS_MULTIPLIER;
     const newX = currentX + distance * Math.sin(direction);
     const newY = currentY + distance * Math.cos(direction);
@@ -54,9 +55,22 @@ define(['../turtle', '../wrapper', '../../config'], (turtle, domWrapper, config)
     });
   };
 
+  const fakeMove = ({
+    distance
+  }) => move({
+    distance
+  });
+
+  const clear = () => {
+    CONTEXT_2D.clearRect(0, 0, CONTEXT_2D.canvas.width, CONTEXT_2D.canvas.height);
+    CONTEXT_2D.beginPath();
+  };
+
   return {
     move,
     rotate,
-    position
+    position,
+    fakeMove,
+    clear
   };
 });
