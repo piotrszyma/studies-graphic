@@ -5,7 +5,7 @@ define(
       if (event.which === 13 && event.target.value !== "") {
         const command = event.target.value;
         history.add(command);
-        history.newestw();
+        history.newest();
         if (command.indexOf(";") !== -1) {
           const commands = command.trim().split(/\s*;\s*/).filter((c) => c !== '');
           try {
