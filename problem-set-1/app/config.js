@@ -1,6 +1,5 @@
 define(() => {
   const pane = ['SVG', 'CANVAS'].includes(window.name) ? window.name : 'SVG';
-  console.log(pane);
   window.name = pane;
   return {
     RADIANS_MULTIPLIER: Math.PI / 180,
