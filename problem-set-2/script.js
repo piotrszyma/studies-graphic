@@ -4,15 +4,15 @@
 //
 // ==========================================
 
-const mainElement = document.querySelector('#main');
-
-mainElement.innerHTML = '<canvas></canvas>';
-
 const canvas = document.querySelector('canvas');
 
 const gl = canvas.getContext('webgl');
 
-const vertices = [-0.5, 0.5, -0.5, -0.5, 0.0, -0.5, ];
+const vertices = [
+  -0.5 ,  0.5 ,  0.0,
+   0.0 ,  0.5 ,  0.0, 
+  -0.25,  0.25,  0.0, 
+];
 
 // ==========================================
 //
@@ -42,9 +42,10 @@ gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 const vertexShaderCode = `
-  attribute vec2 coordinates;
+  attribute vec3 coordinates;
   void main(void) {
-    gl_Position = vec4(coordinates, 0.0, 1.0);
+    gl_Position = vec4(coordinates, 1.0);
+    gl_PointSize = 10.0;
   }
 `
 gl.shaderSource(vertexShader, vertexShaderCode);
@@ -55,7 +56,7 @@ gl.compileShader(vertexShader);
 const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 const fragmentShaderCode = `
   void main(void) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);
+    gl_FragColor = vec4(1.0, 0.5, 0.0, 1);
   }
 `
 gl.shaderSource(fragmentShader, fragmentShaderCode);
@@ -108,4 +109,4 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.viewport(0, 0, canvas.width, canvas.height);
 
-gl.drawArrays(gl.TRIANGLES, 0, 3);
+gl.drawArrays(gl.POINTS, 0, 3);
