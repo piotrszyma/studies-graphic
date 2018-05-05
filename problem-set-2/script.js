@@ -50,33 +50,11 @@ const vertices = [
   -0.5,  0.5, 0.0,
   -0.5, -0.5, 0.0,
    0.5, -0.5, 0.0,
-   0.5,  0.5, 0.0,
 ];
-
-const colors = [
-  0, 0, 1,
-  1, 0, 0,
-  0, 1, 0, 
-  1, 0, 1,
-];
-
-const indices = [3, 2, 1, 3, 1, 0];
 
 const vertexBuffer = createAndBindBuffer({
   type:   gl.ARRAY_BUFFER, 
   data:   new Float32Array(vertices),
-  usage:  gl.STATIC_DRAW
-});
-
-const indexBuffer = createAndBindBuffer({
-  type:   gl.ELEMENT_ARRAY_BUFFER, 
-  data:   new Int16Array(indices),
-  usage:  gl.STATIC_DRAW
-});
-
-const colorBuffer = createAndBindBuffer({
-  type:   gl.ARRAY_BUFFER, 
-  data:   new Float32Array(colors),
   usage:  gl.STATIC_DRAW
 });
 
@@ -91,13 +69,11 @@ const colorBuffer = createAndBindBuffer({
 
 
 const vertexShaderCode = `
-  attribute vec3 coordinates;
-  attribute vec3 color;
-  varying vec3 vColor;
+  attribute vec4 coordinates;
+  uniform vec4 translation;
 
   void main(void) {
-    gl_Position = vec4(coordinates, 1.0);
-    vColor = color;
+    gl_Position = coordinates + translation;
   }
 `;
 
@@ -107,11 +83,8 @@ const vertexShader = createAndCompileShader({
 });
 
 const fragmentShaderCode = `
-  precision mediump float;
-  varying vec3 vColor;
-
   void main(void) {
-    gl_FragColor = vec4(vColor, 1.0);
+    gl_FragColor = vec4(1, 0.5, 0, 1);
   }
 `;
 
@@ -136,23 +109,12 @@ const shaderProgram = createProgramAndAttachShaders({
 // ==========================================
 
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 const coordinates = gl.getAttribLocation(shaderProgram, 'coordinates');
-
 // Point an attribute to the currently bound Vertex Buffer Object
 gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
 // Enable the attribute
 gl.enableVertexAttribArray(coordinates);
-
-
-gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-// Colors
-const color = gl.getAttribLocation(shaderProgram, 'color');
-
-gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
-
-gl.enableVertexAttribArray(color);
 
 
 // ==========================================
@@ -171,4 +133,17 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 
 // gl.drawArrays(gl.LINES, 0, 6);
 
-gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+// Translation
+
+const [ Tx, Ty, Tz ] = [ 0.5, 0.5, 0.0 ];
+
+const translation = gl.getUniformLocation(shaderProgram, 'translation');
+
+gl.uniform3f(translation, Tx, Ty, Tz, 0.0);
+
+setTimeout(() => {
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}, 500);
