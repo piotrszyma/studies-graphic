@@ -15,6 +15,9 @@ const canvas = document.querySelector('canvas');
 
 const gl = canvas.getContext('webgl');
 
+const health = document.querySelector('.statistics__health span');
+const points = document.querySelector('.statistics__points span');
+
 let TURN = 0;
 
 let REDRAW_INTERVAL;
@@ -33,17 +36,28 @@ let PLAYER_CAN_SHOOT = true;
 let PLAYER_SPEED = 0;
 let PLAYER_MAX_SPEED = 15;
 let PLAYER_BULLET_SPEED = 2;
-let PLAYER_SHOOT_INTERVAL = 3000;
+let PLAYER_SHOOT_INTERVAL = 1000;
+let PLAYER_POINTS = 0;
+let PLAYER_HEALTH = 3;
 
-let ENEMY_DIRECTION = true;
+let ENEMY_DIRECTION = 'right';
 let ENEMY_BULLET_SPEED = 2;
+
+const PANE_OFFSET = 2;
 
 const BULLET_WIDTH = 4;
 const BULLET_HEIGHT = 4;
+
 const PLAYER_WIDTH = 40;
 const PLAYER_HEIGHT = 20;
+
 const ENEMY_WIDTH = 32;
 const ENEMY_HEIGHT = 16;
+const ENEMY_FIRERATE = 500;
+const ENEMY_SPEED = 2;
+
+health.innerHTML = PLAYER_HEALTH;
+points.innerHTML = 0;
 
 // ==========================================
 //
@@ -62,6 +76,8 @@ const cartYtoGL = (y) => {
 const randRange = (min, max) => {
   return ~~(Math.random() * (max - min) + min);
 }
+
+const randomColor = () => [Math.random(), Math.random(), Math.random()];
 
 // ==========================================
 //
@@ -186,7 +202,8 @@ const renderObject = ({
   x,
   y,
   w,
-  h
+  h,
+  color = [0, 1, 0.1]
 }) => {
 
   const xMin = cartXtoGL(x);
@@ -211,7 +228,7 @@ const renderObject = ({
   gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(coordinates);
 
-  gl.uniform3f(u_colorLocation, 1, 1, 1, 1);
+  gl.uniform3f(u_colorLocation, ...color, 1.0);
   gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 3);
 };
 
@@ -231,7 +248,10 @@ const renderBackground = () => {
   const coordinates = gl.getAttribLocation(shaderProgram, 'coordinates');
   gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(coordinates);
-  gl.uniform3f(u_colorLocation, 1, 0.2, 0.3, 0.2);
+
+  const bgColor = PLAYER_POINTS > 20 ? randomColor() : [0, 0, 0];
+
+  gl.uniform3f(u_colorLocation, ...bgColor, 1.0);
 
   gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 3);
 }
@@ -296,7 +316,8 @@ document.addEventListener('keydown', (event) => {
         x: PLAYER_OBJECT.x + 18,
         y: PLAYER_OBJECT.y + 20,
         w: BULLET_WIDTH,
-        h: BULLET_HEIGHT
+        h: BULLET_HEIGHT,
+        color: randomColor()
       });
       break;
     default:
@@ -344,6 +365,11 @@ handleGameObject = (o) => {
             ) {
               e.type = 'toRemove';
               o.type = 'toRemove';
+              PLAYER_POINTS += 1;
+              points.innerHTML = PLAYER_POINTS;
+
+              if (PLAYER_POINTS === 24) handleEnd("You won!");
+
             }
           }
         })
@@ -352,7 +378,7 @@ handleGameObject = (o) => {
       break;
     case 'enemy':
       if (
-        randRange(0, 2000) < 200 &&
+        randRange(0, 2000) < ENEMY_FIRERATE &&
         PLAYER_OBJECT.x <= o.x &&
         PLAYER_OBJECT.x + 40 >= o.x + 32 &&
         o.canShoot
@@ -365,16 +391,27 @@ handleGameObject = (o) => {
             x: o.x + 14,
             y: o.y - 4,
             w: 4,
-            h: 4
+            h: 4,
+            color: randomColor()
           })
         }, randRange(0, 300))
       }
-
-      if (ENEMY_DIRECTION) {
-        o.x += 1;
-      } else {
-        o.x -= 1;
+      if (o.x + ENEMY_WIDTH > WIDTH - PANE_OFFSET) {
+        ENEMY_DIRECTION = 'left';
       }
+
+      if (o.x < PANE_OFFSET) {
+        ENEMY_DIRECTION = 'right';
+      }
+
+      if (ENEMY_DIRECTION === 'right') {
+        o.x += ENEMY_SPEED;
+
+      } else {
+        o.x -= ENEMY_SPEED;
+      }
+
+
 
       break;
     case 'enemyBullet':
@@ -390,15 +427,17 @@ handleGameObject = (o) => {
         o.y >= PLAYER_OBJECT.y &&
         o.y <= PLAYER_OBJECT.y + PLAYER_OBJECT.h
       ) {
-        handleLost();
+        PLAYER_HEALTH -= 1;
+        health.innerHTML = PLAYER_HEALTH;
+
+        o.type = 'toRemove';
+        if (PLAYER_HEALTH === 0) handleEnd("No health left.");
       }
 
       break;
     case 'player':
-      o.x += PLAYER_SPEED;
-      if (o.x < 0 || o.x + PLAYER_WIDTH > WIDTH) {
-        handleLost();
-      }
+      o.x = Math.max(o.x + PLAYER_SPEED, PANE_OFFSET);
+      o.x = Math.min(o.x, WIDTH - PLAYER_WIDTH - PANE_OFFSET);
       break;
     default:
       break;
@@ -413,7 +452,7 @@ handleGameObject = (o) => {
 
 const redraw = () => {
   TURN = TURN + 1;
-  gl.clearColor(0, 0, 0, 1);
+  gl.clearColor(0.03, 1, 0.07, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   renderBackground();
@@ -426,18 +465,28 @@ const redraw = () => {
     });
   });
 
-  if (TURN > 120) {
-    TURN = 0;
-    ENEMY_DIRECTION = !ENEMY_DIRECTION;
-  }
-
   GAME_OBJECTS = GAME_OBJECTS.filter(o => o.type !== 'toRemove');
 };
 
 REDRAW_INTERVAL = setInterval(redraw, 20);
 
-const handleLost = () => {
+
+const handleEnd = (reason = "You lost") => {
   clearInterval(REDRAW_INTERVAL);
-  alert("You lost!");
-  window.location.reload();
+  const wrapper = document.querySelector('.wrapper');
+  wrapper.style = 'display: none;'
+
+  const end = document.querySelector('.end');
+  const endButton = document.querySelector('.end__button');
+  const endMessage = document.querySelector('.end__message');
+  endMessage.innerHTML = `
+  <p>${reason}</p>
+  <p>SCORE: ${PLAYER_POINTS}</p>
+  `;
+
+  endButton.addEventListener('click', () => {
+    window.location.reload()
+  });
+
+  end.style = '';
 }

@@ -11,9 +11,21 @@
 
 <body>
   <main id="main">
-    <canvas width="640" height="480"></canvas>
+    <div class="wrapper">
+      <div class="statistics">
+        <div class="statistics__health">Health: <span>0</span></div>
+        <div class="statistics__points">Points: <span>0</span></div>
+      </div>
+      <canvas width="640" height="480"></canvas>
+    </div>
+    <div class="end" style="display: none;">
+      <div>End of the game!</div>
+      <div class="end__message"></div>
+      <div class="end__button">OK</div>
+    </div>
   </main>
 </body>
 
 <script src="script.js"></script>
+
 </html>
