@@ -1,7 +1,16 @@
+html { 
+  height: 100%;
+}
 body {
   font-family: monospace;
   font-weight: 800;
   color: #00ff1c;
+  background-color: black;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .wrapper {

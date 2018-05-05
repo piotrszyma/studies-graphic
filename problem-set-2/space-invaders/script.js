@@ -43,7 +43,7 @@ let PLAYER_HEALTH = 3;
 let ENEMY_DIRECTION = 'right';
 let ENEMY_BULLET_SPEED = 2;
 
-const PANE_OFFSET = 2;
+const PANE_OFFSET = 15;
 
 const BULLET_WIDTH = 4;
 const BULLET_HEIGHT = 4;
@@ -55,6 +55,9 @@ const ENEMY_WIDTH = 32;
 const ENEMY_HEIGHT = 16;
 const ENEMY_FIRERATE = 500;
 const ENEMY_SPEED = 2;
+
+const SHIELD_WIDTH = 60;
+const SHIELD_HEIGHT = 10;
 
 health.innerHTML = PLAYER_HEALTH;
 points.innerHTML = 0;
@@ -153,10 +156,10 @@ const vertexShader = createAndCompileShader({
 
 const fragmentShaderCode = `
   precision mediump float;
-  uniform vec3 u_Color;
+  uniform vec4 u_Color;
 
   void main(void) {
-    gl_FragColor = vec4(u_Color, 1.0);    
+    gl_FragColor = vec4(u_Color);    
   }
 `;
 
@@ -203,7 +206,8 @@ const renderObject = ({
   y,
   w,
   h,
-  color = [0, 1, 0.1]
+  color = [0, 1, 0.1],
+  opacity = 1
 }) => {
 
   const xMin = cartXtoGL(x);
@@ -228,7 +232,7 @@ const renderObject = ({
   gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(coordinates);
 
-  gl.uniform3f(u_colorLocation, ...color, 1.0);
+  gl.uniform4f(u_colorLocation, ...color, opacity);
   gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 3);
 };
 
@@ -251,7 +255,7 @@ const renderBackground = () => {
 
   const bgColor = PLAYER_POINTS > 20 ? randomColor() : [0, 0, 0];
 
-  gl.uniform3f(u_colorLocation, ...bgColor, 1.0);
+  gl.uniform4f(u_colorLocation, ...bgColor, 1.0);
 
   gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 3);
 }
@@ -266,6 +270,8 @@ const renderBackground = () => {
 let GAME_OBJECTS = [];
 
 let ENEMY_OBJECTS = [];
+
+let SHIELD_OBJECTS = [];
 
 const PLAYER_OBJECT = {
   x: 300,
@@ -286,14 +292,28 @@ const PLAYER_OBJECT = {
       canShoot: true,
       type: 'enemy'
     })));
-
 });
 
+SHIELD_OBJECTS.push(...Array(4).fill().map((_, i) => ({
+  x: 140 * i + 80,
+  y: 80,
+  w: SHIELD_WIDTH,
+  h: SHIELD_HEIGHT,
+  type: 'shield',
+  health: 4,
+  color: [0, 1, 0.1],
+  opacity: 1.0
+})));
 
 GAME_OBJECTS.push(PLAYER_OBJECT);
+
 ENEMY_OBJECTS.forEach(e => {
   GAME_OBJECTS.push(e);
-})
+});
+
+SHIELD_OBJECTS.forEach(e => {
+  GAME_OBJECTS.push(e);
+});
 
 
 // ==========================================
@@ -374,6 +394,26 @@ handleGameObject = (o) => {
           }
         })
 
+        SHIELD_OBJECTS.forEach(e => {
+          if (e.type === 'shield') {
+            if (
+              o.x >= e.x &&
+              o.x <= e.x + SHIELD_WIDTH &&
+              o.y >= e.y &&
+              o.y <= e.y + SHIELD_HEIGHT
+            ) {
+              e.health -= 1;
+
+              if (e.health === 0) {
+                e.type = 'toRemove';
+              } else {
+                e.opacity = e.health / 4;
+              }
+              o.type = 'toRemove';
+            }
+          }
+        })
+
       }
       break;
     case 'enemy':
@@ -411,7 +451,13 @@ handleGameObject = (o) => {
         o.x -= ENEMY_SPEED;
       }
 
+      if (TURN % 20 === 0) {
+        o.y -= 1;
+      }
 
+      if (o.y === PLAYER_OBJECT.y + PLAYER_HEIGHT) {
+        handleEnd("You didn\'t manage to defend from space invaders!");
+      }
 
       break;
     case 'enemyBullet':
@@ -420,6 +466,27 @@ handleGameObject = (o) => {
       } else {
         o.y -= ENEMY_BULLET_SPEED;
       }
+
+
+      SHIELD_OBJECTS.forEach(e => {
+        if (e.type === 'shield') {
+          if (
+            o.x >= e.x &&
+            o.x <= e.x + SHIELD_WIDTH &&
+            o.y >= e.y &&
+            o.y <= e.y + SHIELD_HEIGHT
+          ) {
+            e.health -= 1;
+
+            if (e.health === 0) {
+              e.type = 'toRemove';
+            } else {
+              e.opacity = e.health / 4;
+            }
+            o.type = 'toRemove';
+          }
+        }
+      })
 
       if (
         o.x >= PLAYER_OBJECT.x &&
