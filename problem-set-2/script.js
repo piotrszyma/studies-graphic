@@ -70,10 +70,10 @@ const vertexBuffer = createAndBindBuffer({
 
 const vertexShaderCode = `
   attribute vec4 coordinates;
-  uniform vec4 translation;
+  uniform mat4 u_xformMatrix;
 
   void main(void) {
-    gl_Position = coordinates + translation;
+    gl_Position = u_xformMatrix * coordinates;
   }
 `;
 
@@ -117,6 +117,22 @@ gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(coordinates);
 
 
+// Scaling
+
+const [ Sx, Sy, Sz ] = [ 1.0, 1.5, 1.0 ];
+
+const xformMatrix = new Float32Array([
+  Sx,   0.0,  0.0,  0.0,
+  0.0,   Sy,  0.0,  0.0,
+  0.0,  0.0,   Sz,  0.0,
+  0.0,  0.0,  0.0,  1.0,  
+]);
+
+const u_xformMatrix = gl.getUniformLocation(shaderProgram, 'u_xformMatrix');
+
+gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+
+
 // ==========================================
 //
 //    Clear canvas
@@ -131,19 +147,4 @@ gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 gl.viewport(0, 0, canvas.width, canvas.height);
 
-// gl.drawArrays(gl.LINES, 0, 6);
-
 gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-// Translation
-
-const [ Tx, Ty, Tz ] = [ 0.5, 0.5, 0.0 ];
-
-const translation = gl.getUniformLocation(shaderProgram, 'translation');
-
-gl.uniform3f(translation, Tx, Ty, Tz, 0.0);
-
-setTimeout(() => {
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
-}, 500);
