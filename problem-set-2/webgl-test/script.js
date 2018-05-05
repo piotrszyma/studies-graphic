@@ -1,5 +1,14 @@
 // ==========================================
 //
+//            Custom settings
+//
+// ==========================================
+
+
+const CUSTOM_COORDS_LOCATION = 15; // range 0 - 15 (16)
+
+// ==========================================
+//
 //   Initialize canvas, get webgl context    
 //
 // ==========================================
@@ -51,6 +60,9 @@ const createProgramAndAttachShaders = ({
   shaders.forEach(shader => {
     gl.attachShader(program, shader);
   })
+
+  gl.bindAttribLocation(program, CUSTOM_COORDS_LOCATION, 'coordinates');
+
   gl.linkProgram(program);
   gl.useProgram(program);
   return program;
@@ -127,7 +139,14 @@ const shaderProgram = createProgramAndAttachShaders({
 // ==========================================
 
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+// gl.bindAttribLocation(shaderProgram, 10, 'coordinates');
+// const coordinates = 10;
+
 const coordinates = gl.getAttribLocation(shaderProgram, 'coordinates');
+
+console.log(`coordinates location: ${coordinates}`)
+
 gl.vertexAttribPointer(coordinates, 3, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(coordinates);
 
@@ -197,15 +216,18 @@ redraw({
 
 const showAttributes = () => {
   const numOfActiveAttribs = gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
-  const numOfActiveUniforms = gl.getProgramParameter(shaderProgram, gl.ACTIVE_UNIFORMS); 
-  
+  const numOfActiveUniforms = gl.getProgramParameter(shaderProgram, gl.ACTIVE_UNIFORMS);
+
   const attrsArray = Array(numOfActiveAttribs).fill().map((_, i) => {
     const info = gl.getActiveAttrib(shaderProgram, i);
-    return `name: ${info.name} type: ${info.type} size: ${info.size}`
+    const location = gl.getAttribLocation(shaderProgram, info.name);
+    return `name: ${info.name} type: ${info.type} size: ${info.size} location: ${location}`
   });
 
   const unisArray = Array(numOfActiveUniforms).fill().map((_, i) => {
     const info = gl.getActiveUniform(shaderProgram, i);
+    // const location = gl.getUniformLocation(shaderProgram, info.name);
+    // returns [WebGLUniformLocation object]
     return `name: ${info.name} type: ${info.type} size: ${info.size}`
   });
 
