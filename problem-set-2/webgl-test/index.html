@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Graphics</title>
+  <link type="text/css" rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main id="main">
+    <canvas width="640" height="480"></canvas>
+    <div class="settings">
+      <span>mode: </span>
+      <select class="settings__type">
+        <option selected>LINE_STRIP</option>
+        <option>LINE_LOOP</option>
+        <option>LINES</option>
+        <option>TRIANGLE_STRIP</option>
+        <option>TRIANGLE_FAN</option>
+        <option>TRIANGLES</option>
+        <option>POINTS</option>
+      </select>
+      <span> color:</span>
+      <input  class="settings__color" type="color"></input>
+    </div>
+    <div class="attributes">
+      Active Uniform:
+      <ul class="uni__list"></ul>
+      Active Attributes:
+      <ul class="attr__list"></ul>
+    </div>
+  </main>
+</body>
+
+<script src="script.js"></script>
+</html>
