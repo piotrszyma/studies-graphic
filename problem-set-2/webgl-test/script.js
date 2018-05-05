@@ -206,13 +206,25 @@ const redraw = ({
   gl.drawArrays(type, 0, 6);
 };
 
+// ==========================================
+//
+//    Initial
+//
+// ==========================================
+
+
 redraw({
   type: gl[selectHTMLelement.value],
   color: hexToFloatColor(colorHTMLelement.value)
 });
 
 
-// AUX
+// ==========================================
+//
+//   Auxiliary methods for attrs & uniforms
+//
+// ==========================================
+
 
 const showAttributes = () => {
   const numOfActiveAttribs = gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
