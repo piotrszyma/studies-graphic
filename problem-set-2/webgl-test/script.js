@@ -226,7 +226,7 @@ redraw({
 // ==========================================
 
 
-const showAttributes = () => {
+(() => {
   const numOfActiveAttribs = gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
   const numOfActiveUniforms = gl.getProgramParameter(shaderProgram, gl.ACTIVE_UNIFORMS);
 
@@ -245,6 +245,4 @@ const showAttributes = () => {
 
   attrHTMLelement.innerHTML = `<li>${attrsArray.join('</li><li>')}</li>`;
   uniHTMLelement.innerHTML = `<li>${unisArray.join('</li><li>')}</li>`;
-}
-
-showAttributes();
+})();
