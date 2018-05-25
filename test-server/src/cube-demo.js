@@ -18,7 +18,7 @@ var projection=null;
 var view=null;
 var skybox=null;
 
-
+var currentFilter = null;
 
 /* input vertices of cube triangles */
 var xPlusFloat32Array= new Float32Array( [
@@ -200,22 +200,86 @@ var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId
 
   gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
+//
+// Initialize a texture and load an image.
+// When the image finished loading copy it into the texture.
+//
+var loadTexture = function(gl, url) {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 
-var createTexture2D= function(gl){
+  // Because images have to be download over the internet
+  // they might take a moment until they are ready.
+  // Until then put a single pixel in the texture so we can
+  // use it immediately. When the image has finished downloading
+  // we'll update the texture with the contents of the image.
+  const level = 0;
+  const internalFormat = gl.RGBA;
+  const width = 1;
+  const height = 1;
+  const border = 0;
+  const srcFormat = gl.RGBA;
+  const srcType = gl.UNSIGNED_BYTE;
+  const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+  gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                width, height, border, srcFormat, srcType,
+                pixel);
+
+  const image = new Image();
+  image.onload = function() {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  srcFormat, srcType, image);
+
+    // WebGL1 has different requirements for power of 2 images
+    // vs non power of 2 images so check if the image is a
+    // power of 2 in both dimensions.
+    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+       // Yes, it's a power of 2. Generate mips.
+       gl.generateMipmap(gl.TEXTURE_2D);
+    } else {
+       // No, it's not a power of 2. Turn of mips and set
+       // wrapping to clamp to edge
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, currentFilter);
+    }
+    redraw();
+  };
+  image.src = url;
+
+  return texture;
+}
+
+var isPowerOf2 = function(value) {
+  return (value & (value - 1)) == 0;
+}
+
+var createTexture2D= function(gl, index){
   /* parameters:
        gl -  WebGL contex
        textureUnit - texture unit to which the texture should be bound
        */
-  var textureId=gl.createTexture();
-  // gl.activeTexture(gl.TEXTURE0+textureUnit);
-  gl.bindTexture(gl.TEXTURE_2D, textureId);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  var textureId = null;
+  var textureName = 'einstein.jpeg';
+
+  switch(index) {
+    case 0:
+      textureName = 'duck.jpeg';
+      break;
+    case 1:
+      textureName = 'landscape.jpeg';
+      break;
+  }
+
+  textureId = loadTexture(gl, textureName);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, currentFilter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, currentFilter);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   return textureId;
 }
-
 var loadTexture2DFromCanvas= function(gl, canvas, textureId){
   /* use after  makeShaderProgram(gl) */
   /* Parameters:
@@ -474,6 +538,7 @@ window.onload= function(){
   html.canvasTex=document.querySelector('#canvasTex');
   gl = canvasGL.getContext("webgl");
 
+  currentFilter = gl.LINEAR;
 
 
   cubeFace=[
@@ -504,7 +569,7 @@ window.onload= function(){
   for(var skyboxStep=0; skyboxStep<6; skyboxStep++ ){
     sbx_fillCanvasUpsideDown( canvasTex, sbx_createFunctionRGB( fun[r], fun[g], fun[b], skyboxXYZ[skyboxStep] ) );
     sbx_loadCubeFaceFromCanvas(gl, canvasTex, cubeFace[skyboxStep]);
-    boxFaceTextures.push( createTexture2D(gl) );
+    boxFaceTextures.push(createTexture2D(gl, skyboxStep));
     loadTexture2DFromCanvas(gl, canvasTex, boxFaceTextures[boxFaceTextures.length-1]);
   }
 
