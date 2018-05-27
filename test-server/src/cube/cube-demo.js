@@ -242,6 +242,7 @@ var loadTexture = function(gl, url) {
        // wrapping to clamp to edge
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, currentFilter);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, currentFilter);
     }
     redraw();
@@ -265,9 +266,11 @@ var createTexture2D= function(gl, index){
 
   switch(index) {
     case 0:
-      textureName = 'duck.jpeg';
-      break;
     case 1:
+      textureName = 'small.png';
+      break;
+    case 2:
+    case 3:
       textureName = 'landscape.jpeg';
       break;
   }
@@ -505,8 +508,16 @@ function onKeyDown(e){
     case 32: // space
       rotationMatrix4= identityMatrix4;
       break;
-      /*
+
     case 77: // M
+      if (currentFilter === gl.NEAREST) {
+        currentFilter = gl.LINEAR;
+      } else {
+        currentFilter = gl.NEAREST
+      }
+      console.log(`Current filter changed to ${currentFilter}`);
+      break;
+      /*
     case 82: // R
     case 81: // Q
     case 69: // E
