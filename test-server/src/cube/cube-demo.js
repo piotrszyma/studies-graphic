@@ -19,6 +19,7 @@ var view=null;
 var skybox=null;
 
 var currentFilter = null;
+var currentWrap = null;
 
 /* input vertices of cube triangles */
 var xPlusFloat32Array= new Float32Array( [
@@ -210,7 +211,7 @@ var loadTexture = function(gl, url) {
 
   // Because images have to be download over the internet
   // they might take a moment until they are ready.
-  // Until then put a single pixel in the texture so we can
+  // Until then put a single pixel in the texture so we canF
   // use it immediately. When the image has finished downloading
   // we'll update the texture with the contents of the image.
   const level = 0;
@@ -234,16 +235,21 @@ var loadTexture = function(gl, url) {
     // WebGL1 has different requirements for power of 2 images
     // vs non power of 2 images so check if the image is a
     // power of 2 in both dimensions.
-    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+    if (isPowerOf2(image.width) && isPowerOf2(image.height) && localStorage.getItem('minMap') === 'ON') {
        // Yes, it's a power of 2. Generate mips.
-       gl.generateMipmap(gl.TEXTURE_2D);
+      gl.generateMipmap(gl.TEXTURE_2D);
     } else {
        // No, it's not a power of 2. Turn of mips and set
-       // wrapping to clamp to edge
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, currentFilter);
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, currentFilter);
+      // wrapping to clamp to edge
+      var wrapNameS = localStorage.getItem('wrapNameS') || html.wrapNameS.value;
+      var wrapNameT = localStorage.getItem('wrapNameT') || html.wrapNameT.value;
+      var magName = localStorage.getItem('magName') || html.magName.value;
+      var minName = localStorage.getItem('minName') || html.minName.value;
+
+      if (wrapNameS !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[wrapNameS]);
+      if (wrapNameT !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[wrapNameT]);
+      if (magName !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[magName]);
+      if (minName !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[minName]);
     }
     redraw();
   };
@@ -262,25 +268,19 @@ var createTexture2D= function(gl, index){
        textureUnit - texture unit to which the texture should be bound
        */
   var textureId = null;
-  var textureName = 'einstein.jpeg';
-
-  switch(index) {
-    case 0:
-    case 1:
-      textureName = 'small.png';
-      break;
-    case 2:
-    case 3:
-      textureName = 'landscape.jpeg';
-      break;
-  }
+  var textureName = localStorage.getItem('imageName') || html.imageName.value;
+  var wrapNameS = localStorage.getItem('wrapNameS') || html.wrapNameS.value;
+  var wrapNameT = localStorage.getItem('wrapNameT') || html.wrapNameT.value;
+  var magName = localStorage.getItem('magName') || html.magName.value;
+  var minName = localStorage.getItem('minName') || html.minName.value;
 
   textureId = loadTexture(gl, textureName);
 
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, currentFilter);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, currentFilter);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+       if (wrapNameS !== 'OFF')  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl['CLAMP_TO_EDGE']);
+       if (wrapNameT !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl['CLAMP_TO_EDGE']);
+       if (magName !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl['LINEAR']);
+       if (minName !== 'OFF') gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl['LINEAR']);
+
   return textureId;
 }
 var loadTexture2DFromCanvas= function(gl, canvas, textureId){
@@ -464,7 +464,7 @@ var redraw=function(){
 
 onWindowResize = function () {
   var wth = parseInt(window.innerWidth)-10;
-  var hth = parseInt(window.innerHeight)-10;
+  var hth = parseInt(window.innerHeight)-200;
   canvasGL.setAttribute("width", ''+wth);
   canvasGL.setAttribute("height", ''+hth);
   gl.viewportWidth = wth;
@@ -510,12 +510,14 @@ function onKeyDown(e){
       break;
 
     case 77: // M
-      if (currentFilter === gl.NEAREST) {
-        currentFilter = gl.LINEAR;
+      if (html.magName === 'NEAREST') {
+        localStorage.setItem('minName', 'LINEAR');
+        localStorage.setItem('magName', 'LINEAR');
       } else {
-        currentFilter = gl.NEAREST
+        localStorage.setItem('minName', 'NEAREST');
+        localStorage.setItem('magName', 'NEAREST');
       }
-      console.log(`Current filter changed to ${currentFilter}`);
+      window.location.reload();
       break;
       /*
     case 82: // R
@@ -542,15 +544,68 @@ function onKeyDown(e){
 }
 
 
+var html={};
 
 window.onload= function(){
-  html={};
   html.canvasGL=document.querySelector('#canvasGL');
   html.canvasTex=document.querySelector('#canvasTex');
+  html.imageName = document.querySelector('#imageName');
+  html.wrapNameS = document.querySelector('#wrapNameS');
+  html.wrapNameT = document.querySelector('#wrapNameT');
+  html.magName = document.querySelector('#magName');
+  html.minName = document.querySelector('#minName');
+
   gl = canvasGL.getContext("webgl");
 
-  currentFilter = gl.LINEAR;
+  html.imageName.value = localStorage.getItem('imageName');
+  html.wrapNameS.value = localStorage.getItem('wrapNameS');
 
+  html.wrapNameT.value = localStorage.getItem('wrapNameT');
+  html.magName.value = localStorage.getItem('magName');
+  html.minName.value = localStorage.getItem('minName');
+
+  html.minMap = document.querySelector('#minMap');
+
+  html.minMap.onclick = function(event) {
+    const minMap = localStorage.getItem('minMap') || 'OFF'
+
+    if ( minMap === 'OFF' ) {
+      localStorage.setItem('minMap', 'ON');
+    } else {
+      localStorage.setItem('minMap', 'OFF');
+    }
+  };
+
+  html.imageName.onchange= function (event) {
+    console.log(`imageName ${event.target.value}`);
+    localStorage.setItem('imageName', event.target.value);
+    window.location.reload();
+  };
+
+  html.wrapNameS.onchange= function (event) {
+    console.log(`wrapNameS ${event.target.value}`);
+    localStorage.setItem('wrapNameS', event.target.value);
+    window.location.reload();
+  };
+
+
+  html.wrapNameT.onchange= function (event) {
+    console.log(`wrapNameT ${event.target.value}`);
+    localStorage.setItem('wrapNameT', event.target.value);
+    window.location.reload();
+  };
+
+  html.minName.onchange= function (event) {
+    console.log(`minName ${event.target.value}`);
+    localStorage.setItem('minName', event.target.value);
+    window.location.reload();
+  };
+
+  html.magName.onchange= function (event) {
+    console.log(`magName ${event.target.value}`);
+    localStorage.setItem('magName', event.target.value);
+    window.location.reload();
+  };
 
   cubeFace=[
     gl.TEXTURE_CUBE_MAP_POSITIVE_X,

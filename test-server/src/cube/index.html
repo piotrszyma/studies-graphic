@@ -10,5 +10,42 @@
     <canvas id="canvasTex" width="512" height="512" style="display: none;"></canvas>
     <script src="skybox_utils.js"></script>
     <script src="cube-demo.js"></script>
+    IMAGE
+    <select id="imageName">
+      <option value="1x1_2px.jpeg">1x1_2px.jpeg</option>
+      <option value="1x1_3px.jpeg">1x1_3px.jpeg</option>
+    </select>
+    MAG
+    <select id="magName">
+      <option value="LINEAR">LINEAR</option>
+      <option value="NEAREST">NEAREST</option>
+      <option value="OFF">OFF</option>
+    </select>
+    MIN
+    <select id="minName">
+      <option value="LINEAR">LINEAR</option>
+      <option value="LINEAR_MIPMAP_NEAREST">LINEAR_MINMAP_NEAREST</option>
+      <option value="NEAREST_MIPMAP_LINEAR">NEAREST_MINMAP_LINEAR</option>
+      <option value="NEAREST">NEAREST</option>
+      <option value="OFF">OFF</option>
+    </select>
+    WRAP T
+    <select id="wrapNameT">
+      <option value="CLAMP_TO_EDGE">CLAMP_TO_EDGE</option>
+      <option value="MIRRORED_REPEAT">MIRRORED REPEAT</option>
+      <option value="REPEAT">REPEAT</option>
+      <option value="OFF">OFF</option>
+    </select>
+    WRAP S
+    <select id="wrapNameS">
+      <option value="CLAMP_TO_EDGE">CLAMP_TO_EDGE</option>
+      <option value="MIRRORED_REPEAT">MIRRORED REPEAT</option>
+      <option value="REPEAT">REPEAT</option>
+      <option value="OFF">OFF</option>
+    </select>
+
+    <button id="minMap">toggleMinMap</button>
+
+    <button  onclick="window.location.reload()">Apply</button>
   </body>
 </html>
