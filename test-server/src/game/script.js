@@ -28,6 +28,11 @@ let foregroundTexture = loadTexture(gl, 'bullet.png');
 let backgroundTexture = loadTexture(gl, 'background.png');
 let logoTexture = loadTexture(gl, 'logo.png');
 
+let shieldFull = loadTexture(gl, 'shield4.png');
+let shieldThree = loadTexture(gl, 'shield3.png');
+let shieldTwo = loadTexture(gl, 'shield2.png');
+let shieldOne = loadTexture(gl, 'shield1.png');
+
 const TEXTURE_TYPES = {
   'player': playerTexture,
   'enemy': enemyTexture,
@@ -37,6 +42,10 @@ const TEXTURE_TYPES = {
   'playerBullet': foregroundTexture,
   'background': backgroundTexture,
   'logo': logoTexture,
+  'shield4': shieldFull,
+  'shield3': shieldThree,
+  'shield2': shieldTwo,
+  'shield1': shieldOne
 };
 
 // ==========================================
@@ -289,7 +298,8 @@ const renderObject = ({
   h,
   color = [0, 1, 0.1],
   opacity = 1,
-  type
+  type,
+  health
 }) => {
 
   const xMin = cartXtoGL(x);
@@ -316,8 +326,13 @@ const renderObject = ({
 
   // Textures buffer
 
+  let currentTexture = null;
 
-  const currentTexture = TEXTURE_TYPES[type] || backgroundTexture;
+  if (type === 'shield') {
+     currentTexture = TEXTURE_TYPES[`shield${health}`];
+  } else {
+     currentTexture = TEXTURE_TYPES[type] || backgroundTexture;
+  }
 
   gl.bindTexture(gl.TEXTURE_2D, currentTexture);
 
