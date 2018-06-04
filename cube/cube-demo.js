@@ -579,32 +579,27 @@ window.onload= function(){
   html.imageName.onchange= function (event) {
     console.log(`imageName ${event.target.value}`);
     localStorage.setItem('imageName', event.target.value);
-    window.location.reload();
   };
 
   html.wrapNameS.onchange= function (event) {
     console.log(`wrapNameS ${event.target.value}`);
     localStorage.setItem('wrapNameS', event.target.value);
-    window.location.reload();
   };
 
 
   html.wrapNameT.onchange= function (event) {
     console.log(`wrapNameT ${event.target.value}`);
     localStorage.setItem('wrapNameT', event.target.value);
-    window.location.reload();
   };
 
   html.minName.onchange= function (event) {
     console.log(`minName ${event.target.value}`);
     localStorage.setItem('minName', event.target.value);
-    window.location.reload();
   };
 
   html.magName.onchange= function (event) {
     console.log(`magName ${event.target.value}`);
     localStorage.setItem('magName', event.target.value);
-    window.location.reload();
   };
 
   cubeFace=[
