@@ -6,11 +6,11 @@ In this course I've learned basics of WebGL and matrix algebra behind points tra
 
 ## Content
 
-* Problem Set 1
+#### Problem Sets
 
-Simple SVG & canvas pane manipulations
+Simple SVG & canvas pane manipulations, basic operations on WebGL API.
 
-* Simple Wireframe game
+#### Simple Wireframe game
 
 3D effect created with wireframe effect.
 
@@ -18,7 +18,7 @@ Control your red brick using arrow keys, avoid the wall while your brick is movi
 
 [Click here to play](https://piotrszyma.github.io/assets/wireframe/)
 
-* Space Invaders
+#### Space Invaders
 
 Use left and right arrows to avoid enemy shots, shoot with spacebar. The goal here is to kill all the invaders.
 
